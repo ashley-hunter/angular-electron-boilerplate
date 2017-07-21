@@ -1,5 +1,7 @@
 var webpack = require('webpack');
 var path = require('path');
+var HtmlWebpackPlugin = require('html-webpack-plugin');
+var ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 module.exports = {
     entry: {
@@ -22,8 +24,7 @@ module.exports = {
     target: 'electron-renderer',
 
     module: {
-        rules: [
-            {
+        rules: [{
                 test: /\.ts$/,
                 use: ['awesome-typescript-loader', 'angular2-template-loader']
             },
@@ -36,8 +37,16 @@ module.exports = {
                 use: 'file-loader?name=assets/[name].[hash].[ext]'
             },
             {
-                test: /\.css$/,
-                loader: 'raw-loader'
+                test: /\.scss$/,
+                include: path.resolve('./styles.scss'),
+                use: ExtractTextPlugin.extract({
+                    use: ['css-loader', 'sass-loader']
+                })
+            },
+            {
+                test: /\.scss$/,
+                exclude: path.resolve('./styles.scss'),
+                use: ['raw-loader', 'sass-loader']
             }
         ]
     },
@@ -51,6 +60,12 @@ module.exports = {
 
         new webpack.optimize.CommonsChunkPlugin({
             name: ['app', 'vendor', 'polyfills']
+        }),
+
+        new ExtractTextPlugin("styles.css"),
+
+        new HtmlWebpackPlugin({
+            template: './index.html'
         })
     ]
 };
